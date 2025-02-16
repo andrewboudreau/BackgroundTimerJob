@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.35806.103 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackgroundTimerJob", "src\BackgroundTimerJob.csproj", "{909D28D6-FCF1-400C-9113-8BD44BB6A375}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{909D28D6-FCF1-400C-9113-8BD44BB6A375}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{909D28D6-FCF1-400C-9113-8BD44BB6A375}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{909D28D6-FCF1-400C-9113-8BD44BB6A375}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{909D28D6-FCF1-400C-9113-8BD44BB6A375}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {38292264-1F58-4903-B6DE-AA1C902BEBBA}
+	EndGlobalSection
+EndGlobal
