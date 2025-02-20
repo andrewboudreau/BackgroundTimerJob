@@ -11,12 +11,12 @@
 		<RepositoryUrl>https://github.com/andrewboudreau/BackgroundTimerJob</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Nullable>enable</Nullable>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageReadmeFile>readme.md</PackageReadmeFile>
 	</PropertyGroup>
 	
 	<!-- Include the README file in the package -->
 	<ItemGroup>
-		<None Include="../readme.md" Pack="true" PackagePath="" Link="readme.md">
+		<None Include="../readme.md" Pack="true" PackagePath="." Link="readme.md">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
