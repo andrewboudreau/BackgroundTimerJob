@@ -5,7 +5,7 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Authors>Andrew Boudreau</Authors>
 		<PackageId>BackgroundTimerJob</PackageId>
-		<Version>8.0.0</Version>
+		<Version>9.0.1</Version>
 		<Description>A simple way to create a background timer job for ASP.NET Core that runs delegate jobs on a configurable interval.</Description>
 		<PackageTags>scheduler;timerjob;backgroundjob;aspnetcore</PackageTags>
 		<RepositoryUrl>https://github.com/andrewboudreau/BackgroundTimerJob</RepositoryUrl>
