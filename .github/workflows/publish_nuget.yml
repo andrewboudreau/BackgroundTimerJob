@@ -9,6 +9,9 @@ on:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+    permissions:
+        contents: write
+        releases: write
 
     steps:
       - name: Check out code
@@ -72,10 +75,10 @@ jobs:
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-            tag_name: ${{ github.ref }}
-            release_name: Release v${{ github.ref }}
-            draft: false
-            prerelease: false
+          tag_name: v${{ steps.extract_version.outputs.version }}
+          release_name: Release v${{ steps.extract_version.outputs.version }}
+          draft: false
+          prerelease: false
 
       - name: Publish package to NuGet
         if: github.ref_type == 'tag'
