@@ -52,20 +52,20 @@ jobs:
             TAG=${GITHUB_REF#refs/tags/}
             VERSION=${TAG#v}
             echo "version=$VERSION" >> $GITHUB_OUTPUT
-            echo "Tag is: $TAG, version is: $VERSION" >> $GITHUB_OUTPUT
+            echo "Tag is: $TAG, version is: $VERSION"
           
       - name: Ensure csproj version matches tag version
         run: |
             # Extract the version from the tag (assuming tag is formatted as "v9.0.1")
             TAG_VERSION=${GITHUB_REF#refs/tags/v}
-            echo "Tag version: $TAG_VERSION" >> $GITHUB_OUTPUT
+            echo "Tag version: $TAG_VERSION"
             
             # Extract the Version property from the csproj file using grep & sed (adjust the file name if needed)
             CSPROJ_VERSION=$(grep -oP '(?<=<Version>)[^<]+' ./src/BackgroundTimerJob.csproj)
-            echo "csproj version: $CSPROJ_VERSION" >> $GITHUB_OUTPUT
+            echo "csproj version: $CSPROJ_VERSION"
     
             if [ "$TAG_VERSION" != "$CSPROJ_VERSION" ]; then
-                echo "Error: Tag version ($TAG_VERSION) does not match csproj version ($CSPROJ_VERSION)." >> $GITHUB_OUTPUT
+                echo "Error: Tag version ($TAG_VERSION) does not match csproj version ($CSPROJ_VERSION)."
                 exit 1
             fi
 
