@@ -16,7 +16,9 @@
 	
 	<!-- Include the README file in the package -->
 	<ItemGroup>
-		<None Include="..\readme.md" Pack="true" PackagePath="" Link="readme.md" />
+		<None Include="..\readme.md" Pack="true" PackagePath="" Link="readme.md">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 	
 	<!-- For net8.0, use these package versions and exclude build & analyzers assets -->
