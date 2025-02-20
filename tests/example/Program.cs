@@ -11,7 +11,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         });
 
         // Register the timer job hosted service.
-        // In this example, the delegate receives an ILogger<TimerJobHostedService> and a CancellationToken.
+        // In this example, the delegate receives an ILogger and a CancellationToken.
         services.AddTimerJob(
             TimeSpan.FromSeconds(5),
             async (ILogger<Program> logger, CancellationToken cancellationToken) =>
