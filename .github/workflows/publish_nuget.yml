@@ -65,7 +65,6 @@ jobs:
                 echo "Error: Tag version ($TAG_VERSION) does not match csproj version ($CSPROJ_VERSION)."
                 exit 1
             fi
-            shell: bash
 
       - name: Publish package to NuGet
         if: github.ref_type == 'tag'
