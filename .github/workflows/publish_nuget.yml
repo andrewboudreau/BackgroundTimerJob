@@ -46,13 +46,14 @@ jobs:
         run: dotnet pack --configuration Release --no-build --output ./artifacts
 
       # Extract version number from tag (assuming tags like v9.0.1)
-      - name: Extract version number from tag
+      - name: Extract version from tag
         id: extract_version
         run: |
-          TAG=${GITHUB_REF#refs/tags/}
-          VERSION=${TAG#v}
-          echo "Version: $VERSION"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+            # Remove the "refs/tags/" prefix and then the "v" prefix.
+            TAG=${GITHUB_REF#refs/tags/}
+            VERSION=${TAG#v}
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "Tag is: $TAG, version is: $VERSION"
           
       - name: Ensure csproj version matches tag version
         run: |
