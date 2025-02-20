@@ -1,0 +1,51 @@
+name: Publish NuGet Package
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'     # This triggers on version tags like v1.0.0, v1.2.3, etc.
+  workflow_dispatch: # Allows manual dispatch from the GitHub Actions UI.
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'  # Or whichever version of .NET you use
+
+      # [Optional] If you are strong-naming (SNK) or code-signing (PFX):
+      # decode your .snk/.pfx from a base64 secret stored in SIGNING_KEY
+      #
+      # - name: Create signing key file
+      #   if: secrets.SIGNING_KEY != ''
+      #   run: |
+      #     echo "$SIGNING_KEY" | base64 --decode > mykey.snk
+      #     # For .pfx, do the same but name it .pfx instead of .snk
+      #
+      # Then pass it to msbuild or specify it in the .csproj
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test --configuration Release --no-build --verbosity normal
+
+      - name: Pack
+        run: dotnet pack --configuration Release --no-build --output ./artifacts
+
+      - name: Publish package to NuGet
+        if: github.ref_type == 'tag'
+        run: |
+          dotnet nuget push "./artifacts/*.nupkg" \
+            --api-key ${{ secrets.NUGET_API_KEY }} \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
