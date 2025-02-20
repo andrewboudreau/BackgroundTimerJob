@@ -1,30 +1,30 @@
-﻿using BackgroundTimerJob;
+﻿
+IHost host = Host.CreateDefaultBuilder(args)
+    .ConfigureServices((hostContext, services) =>
+    {
+        // Configure logging to use the console.
+        services.AddLogging(builder =>
+        {
+            builder.ClearProviders();
+            builder.AddConsole();
+            builder.SetMinimumLevel(LogLevel.Information);
+        });
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+        // Register the timer job hosted service.
+        // In this example, the delegate receives an ILogger<TimerJobHostedService> and a CancellationToken.
+        services.AddTimerJob(
+            TimeSpan.FromSeconds(5),
+            async (ILogger<Program> logger, CancellationToken cancellationToken) =>
+            {
+                await Task.Delay(500, cancellationToken);
+                logger.LogInformation("Timer job executed at {time}", DateTimeOffset.Now);
+            });
+    })
+    .Build();
 
-var services = new ServiceCollection();
-services.AddLogging(builder =>
-{
-    builder.ClearProviders();
-    builder.AddConsole();
-    builder.SetMinimumLevel(LogLevel.Information);
-});
+// Optionally, log a startup message.
+var startupLogger = host.Services.GetRequiredService<ILogger<Program>>();
+startupLogger.LogInformation("Host started. Press Ctrl+C to exit.");
 
-services.AddTimerJob(TimeSpan.FromSeconds(5), async (ILogger logger) =>
-{
-    await Task.Delay(500);
-    logger.LogInformation("Timer job executed at {time}", DateTimeOffset.Now);
-});
-
-using var serviceProvider = services.BuildServiceProvider();
-
-// Resolve a logger
-var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
-
-// Log a message
-logger.LogInformation("Hello, world! This is a log message.");
-
-// Keep the console open
-Console.WriteLine("Press any key to exit...");
-Console.ReadKey();
+// Run the host (which starts the background timer job).
+await host.RunAsync();

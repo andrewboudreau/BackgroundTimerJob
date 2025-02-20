@@ -17,9 +17,6 @@ public class BackgroundTimerJobHostedService : BackgroundService
     private readonly TimeSpan timeout;
     private readonly ILogger<BackgroundTimerJobHostedService>? logger;
 
-    // Use an int flag for concurrency control (0 = not running, 1 = running)
-    private int isRunning = 0;
-
     public BackgroundTimerJobHostedService(TimeSpan interval, IServiceProvider serviceProvider, Delegate jobDelegate, TimeSpan timeout)
     {
         this.interval = interval;
@@ -41,14 +38,8 @@ public class BackgroundTimerJobHostedService : BackgroundService
             }
             catch (OperationCanceledException)
             {
+                logger?.LogInformation("The background timer job is shutting down.");
                 break;
-            }
-
-            // Prevent overlapping executions.
-            if (Interlocked.CompareExchange(ref isRunning, 1, 0) == 1)
-            {
-                logger?.LogInformation("Timer job is already running; skipping this interval.");
-                continue;
             }
 
             try
@@ -56,7 +47,7 @@ public class BackgroundTimerJobHostedService : BackgroundService
                 // Create a new scope for each job run.
                 using var scope = serviceProvider.CreateScope();
 
-                // Create a cancellation token that cancels after 1 minute (in addition to host shutdown).
+                // Create a cancellation token that cancels after timeout (in addition to host shutdown).
                 using var cts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
                 cts.CancelAfter(timeout);
                 CancellationToken jobCancellationToken = cts.Token;
@@ -78,15 +69,15 @@ public class BackgroundTimerJobHostedService : BackgroundService
             }
             catch (OperationCanceledException) when (!stoppingToken.IsCancellationRequested)
             {
-                logger?.LogWarning("Timer job execution timed out after 1 minute.");
+                logger?.LogWarning("Timer job execution timed out after {timeout} minutes.", timeout.TotalMinutes);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                logger?.LogWarning("Timer job was cancelled during job execution.");
             }
             catch (Exception ex)
             {
                 logger?.LogError(ex, "An error occurred during timer job execution.");
-            }
-            finally
-            {
-                Interlocked.Exchange(ref isRunning, 0);
             }
         }
     }
