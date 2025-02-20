@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
+		<TargetFramework>net8.0;net9.0</TargetFramework>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Authors>Andrew Boudreau</Authors>
 		<PackageId>BackgroundTimerJob</PackageId>
-		<Version>9.0.1</Version>
+		<Version>9.0.2</Version>
 		<Description>A simple way to create a background timer job for ASP.NET Core that runs delegate jobs on a configurable interval.</Description>
 		<PackageTags>scheduler;timerjob;backgroundjob;aspnetcore</PackageTags>
 		<RepositoryUrl>https://github.com/andrewboudreau/BackgroundTimerJob</RepositoryUrl>
@@ -13,7 +13,14 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
-	<ItemGroup>
+	<!-- For net8.0, use these package versions and exclude build & analyzers assets -->
+	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" ExcludeAssets="build;analyzers" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" ExcludeAssets="build;analyzers" />
+	</ItemGroup>
+
+	<!-- For net9.0, use these package versions -->
+	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.2" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.2" />
 	</ItemGroup>
