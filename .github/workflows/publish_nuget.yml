@@ -42,6 +42,31 @@ jobs:
       - name: Pack
         run: dotnet pack --configuration Release --no-build --output ./artifacts
 
+      # Extract version number from tag (assuming tags like v9.0.1)
+      - name: Extract version number from tag
+        id: extract_version
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          VERSION=${TAG#v}
+          echo "Version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          
+      - name: Ensure csproj version matches tag version
+        run: |
+            # Extract the version from the tag (assuming tag is formatted as "v9.0.1")
+            TAG_VERSION=${GITHUB_REF#refs/tags/v}
+            echo "Tag version: $TAG_VERSION"
+            
+            # Extract the Version property from the csproj file using grep & sed (adjust the file name if needed)
+            CSPROJ_VERSION=$(grep -oP '(?<=<Version>)[^<]+' BackgroundTimerJob.csproj)
+            echo "csproj version: $CSPROJ_VERSION"
+    
+            if [ "$TAG_VERSION" != "$CSPROJ_VERSION" ]; then
+                echo "Error: Tag version ($TAG_VERSION) does not match csproj version ($CSPROJ_VERSION)."
+                exit 1
+            fi
+            shell: bash
+
       - name: Publish package to NuGet
         if: github.ref_type == 'tag'
         run: |
@@ -49,3 +74,14 @@ jobs:
             --api-key ${{ secrets.NUGET_API_KEY }} \
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate
+      
+      # Upload the NuGet package as a release asset using the version number if needed.
+      - name: Upload NuGet Package as Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/BackgroundTimerJob.${{ steps.extract_version.outputs.version }}.nupkg
+          asset_name: BackgroundTimerJob.${{ steps.extract_version.outputs.version }}.nupkg
+          asset_content_type: application/octet-stream
