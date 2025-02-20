@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+	
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -7,9 +7,10 @@
 		<PackageId>BackgroundTimerJob</PackageId>
 		<Version>1.0.0</Version>
 		<Description>A simple way to create a background timer job for ASP.NET Core that runs delegate jobs on a configurable interval.</Description>
-		<PackageTags>timer;background;job;aspnetcore</PackageTags>
-		<RepositoryUrl>https://github.com/YourOrg/SharedWebAppTools.TimerJobs</RepositoryUrl>
+		<PackageTags>scheduler;timerjob;backgroundjob;aspnetcore</PackageTags>
+		<RepositoryUrl>https://github.com/andrewboudreau/BackgroundTimerJob</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
 	<ItemGroup>

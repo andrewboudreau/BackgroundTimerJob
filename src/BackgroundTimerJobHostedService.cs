@@ -1,6 +1,4 @@
-﻿namespace BackgroundTimerJob;
-
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -9,22 +7,25 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
+namespace BackgroundTimerJob;
+
 public class BackgroundTimerJobHostedService : BackgroundService
 {
     private readonly TimeSpan interval;
     private readonly IServiceProvider serviceProvider;
     private readonly Delegate jobDelegate;
+    private readonly TimeSpan timeout;
     private readonly ILogger<BackgroundTimerJobHostedService>? logger;
 
     // Use an int flag for concurrency control (0 = not running, 1 = running)
-
     private int isRunning = 0;
 
-    public BackgroundTimerJobHostedService(TimeSpan interval, IServiceProvider serviceProvider, Delegate jobDelegate)
+    public BackgroundTimerJobHostedService(TimeSpan interval, IServiceProvider serviceProvider, Delegate jobDelegate, TimeSpan timeout)
     {
         this.interval = interval;
         this.serviceProvider = serviceProvider;
         this.jobDelegate = jobDelegate;
+        this.timeout = timeout;
         logger = this.serviceProvider.GetService<ILogger<BackgroundTimerJobHostedService>>();
     }
 
@@ -46,7 +47,7 @@ public class BackgroundTimerJobHostedService : BackgroundService
             // Prevent overlapping executions.
             if (Interlocked.CompareExchange(ref isRunning, 1, 0) == 1)
             {
-                logger.LogInformation("Timer job is already running; skipping this interval.");
+                logger?.LogInformation("Timer job is already running; skipping this interval.");
                 continue;
             }
 
@@ -57,14 +58,14 @@ public class BackgroundTimerJobHostedService : BackgroundService
 
                 // Create a cancellation token that cancels after 1 minute (in addition to host shutdown).
                 using var cts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
-                cts.CancelAfter(TimeSpan.FromMinutes(1));
+                cts.CancelAfter(timeout);
                 CancellationToken jobCancellationToken = cts.Token;
 
                 // Resolve parameters for the delegate from the scope.
                 object[] parameters = ResolveDelegateParameters(jobDelegate, scope.ServiceProvider, jobCancellationToken);
 
                 // Invoke the delegate. It is expected to return a Task.
-                object result = jobDelegate.DynamicInvoke(parameters);
+                object? result = jobDelegate.DynamicInvoke(parameters);
                 if (result is Task task)
                 {
                     // Await the task so that exceptions propagate.
@@ -72,16 +73,16 @@ public class BackgroundTimerJobHostedService : BackgroundService
                 }
                 else
                 {
-                    logger.LogWarning("The timer job delegate did not return a Task.");
+                    logger?.LogWarning("The timer job delegate did not return a Task.");
                 }
             }
             catch (OperationCanceledException) when (!stoppingToken.IsCancellationRequested)
             {
-                logger.LogWarning("Timer job execution timed out after 1 minute.");
+                logger?.LogWarning("Timer job execution timed out after 1 minute.");
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred during timer job execution.");
+                logger?.LogError(ex, "An error occurred during timer job execution.");
             }
             finally
             {
@@ -95,22 +96,39 @@ public class BackgroundTimerJobHostedService : BackgroundService
     /// If the parameter is a CancellationToken, it supplies the provided cancellationToken.
     /// Otherwise, it resolves the parameter from the service provider.
     /// </summary>
-    private object[] ResolveDelegateParameters(Delegate jobDelegate, IServiceProvider serviceProvider, CancellationToken cancellationToken)
+    private static object[] ResolveDelegateParameters(
+        Delegate jobDelegate,
+        IServiceProvider serviceProvider,
+        CancellationToken cancellationToken,
+        ILogger? logger = null)
     {
         MethodInfo method = jobDelegate.Method;
         ParameterInfo[] paramInfos = method.GetParameters();
         var parameters = new object[paramInfos.Length];
 
+        logger?.LogDebug("Resolving parameters for delegate: {DelegateMethod}", method.Name);
+
         for (int i = 0; i < paramInfos.Length; i++)
         {
             Type paramType = paramInfos[i].ParameterType;
-            if (paramType == typeof(CancellationToken))
+            try
             {
-                parameters[i] = cancellationToken;
+                if (paramType == typeof(CancellationToken))
+                {
+                    parameters[i] = cancellationToken;
+                    logger?.LogDebug("Parameter [{Index}] of type {ParameterType} set to the provided CancellationToken.", i, paramType.Name);
+                }
+                else
+                {
+                    object resolved = serviceProvider.GetRequiredService(paramType);
+                    parameters[i] = resolved;
+                    logger?.LogDebug("Parameter [{Index}] of type {ParameterType} successfully resolved to instance: {Instance}.", i, paramType.Name, resolved);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                parameters[i] = serviceProvider.GetRequiredService(paramType);
+                logger?.LogError(ex, "Failed to resolve parameter [{Index}] of type {ParameterType} for delegate {DelegateMethod}.", i, paramType.Name, method.Name);
+                throw; // Re-throw the exception to allow upstream handling.
             }
         }
 

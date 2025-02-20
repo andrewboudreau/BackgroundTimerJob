@@ -17,10 +17,10 @@ public static class BackgroundTimerJobExtensions
     /// async (IMediator mediator, IMyDbContext dbContext, CancellationToken cancellationToken, ILogger<MyJob> logger) => { ... }
     /// </param>
     /// <returns></returns>
-    public static IServiceCollection AddTimerJob(this IServiceCollection services, TimeSpan interval, Delegate jobDelegate)
+    public static IServiceCollection AddTimerJob(this IServiceCollection services, TimeSpan interval, Delegate jobDelegate, TimeSpan? timeout = null)
     {
         // Register our hosted service. Each timer job will be an instance of TimerJobHostedService.
-        services.AddHostedService(sp => new BackgroundTimerJobHostedService(interval, sp, jobDelegate));
+        services.AddHostedService(sp => new BackgroundTimerJobHostedService(interval, sp, jobDelegate, timeout ?? TimeoutAfter.OneMinute));
         return services;
     }
 }
