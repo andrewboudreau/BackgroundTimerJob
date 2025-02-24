@@ -10,15 +10,27 @@ IHost host = Host.CreateDefaultBuilder(args)
             builder.SetMinimumLevel(LogLevel.Information);
         });
 
+        // Configure Azure Storage connection
+        services.AddSingleton(provider =>
+        {
+            var configuration = provider.GetRequiredService<IConfiguration>();
+            var connectionString = configuration.GetConnectionString("AzureStorage");
+            return new BlobServiceClient(connectionString);
+        });
+
         // Register the timer job hosted service.
         // In this example, the delegate receives an ILogger and a CancellationToken.
         services.AddTimerJob(
             TimeSpan.FromSeconds(5),
-            async (ILogger<Program> logger, CancellationToken cancellationToken) =>
+            async (ILogger<Program> logger, BlobServiceClient blobServiceClient, CancellationToken cancellationToken) =>
             {
+                // Create a container client.
+                var containerClient = blobServiceClient.GetBlobContainerClient("joblocks");
+
                 await Task.Delay(500, cancellationToken);
                 logger.LogInformation("Timer job executed at {time}", DateTimeOffset.Now);
             });
+
     })
     .Build();
 

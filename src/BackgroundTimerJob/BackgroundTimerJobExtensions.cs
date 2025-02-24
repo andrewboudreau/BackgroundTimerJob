@@ -1,8 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-using System;
-
-namespace BackgroundTimerJob;
+﻿namespace BackgroundTimerJob;
 
 public static class BackgroundTimerJobExtensions
 {

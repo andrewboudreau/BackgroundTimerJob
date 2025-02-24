@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Namespace>BackgroundTimerJob.DistributedLock</Namespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Azure.Storage.Blobs" Version="12.23.0" />
+		<PackageReference Include="Microsoft.Extensions.Azure" Version="1.10.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\BackgroundTimerJob\BackgroundTimerJob.csproj" />
+	</ItemGroup>
+</Project>

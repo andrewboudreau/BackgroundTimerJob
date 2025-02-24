@@ -61,7 +61,7 @@ jobs:
             echo "Tag version: $TAG_VERSION"
             
             # Extract the Version property from the csproj file using grep & sed (adjust the file name if needed)
-            CSPROJ_VERSION=$(grep -oP '(?<=<Version>)[^<]+' ./src/BackgroundTimerJob.csproj)
+            CSPROJ_VERSION=$(grep -oP '(?<=<Version>)[^<]+' ./src/BackgroundTimerJob/BackgroundTimerJob.csproj)
             echo "csproj version: $CSPROJ_VERSION"
     
             if [ "$TAG_VERSION" != "$CSPROJ_VERSION" ]; then

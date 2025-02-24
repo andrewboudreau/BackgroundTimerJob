@@ -9,7 +9,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\src\BackgroundTimerJob.csproj" />
+	  <ProjectReference Include="..\..\src\AzureBlobDistributedJobLock\AzureBlobDistributedJobLock.csproj" />
+	  <ProjectReference Include="..\..\src\BackgroundTimerJob\BackgroundTimerJob.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="appsettings.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
 	</ItemGroup>
 
 </Project>
